@@ -9,7 +9,7 @@ buildscript {
 }
 
 group 'si.fri.rsobook'
-version '1.0-SNAPSHOT'
+version '1.0'
 
 apply plugin: 'java'
 apply plugin: 'idea'
@@ -18,9 +18,13 @@ apply plugin: 'com.bmuschko.docker-remote-api'
 sourceCompatibility = 1.8
 
 ext {
+    dockerHubUser =  project.hasProperty('DOCKER_HUB_USER') ? DOCKER_HUB_USER : System.getenv('DOCKER_HUB_USER')
+    dockerHubEmail =  project.hasProperty('DOCKER_HUB_EMAIL') ? DOCKER_HUB_EMAIL : System.getenv('DOCKER_HUB_EMAIL')
+    dockerHubPassword =  project.hasProperty('DOCKER_HUB_PASSWORD') ? DOCKER_HUB_PASSWORD : System.getenv('DOCKER_HUB_PASSWORD')
+
     port = "5006"
     dockerHostname = "chatrelay.rsobook.fri.si"
-    dockerImageName = String.format("%s/%s", DOCKER_HUB_USER, project.name)
+    dockerImageName = String.format("%s/%s", dockerHubUser, project.name)
     dockerImageTag = String.format("%s:%s", dockerImageName, version)
     dockerContainerName = String.format("%s", project.name)
 }
@@ -28,11 +32,7 @@ ext {
 repositories {
     mavenCentral()
     maven {
-        url 'https://box.kisek.si/nexus/repository/maven-releases' //'http://localhost:8081/repository/maven-releases/'
-        credentials {
-            username NEXUS_USERNAME
-            password NEXUS_PASSWORD
-        }
+        url 'https://box.kisek.si/nexus/repository/maven-releases'
     }
 }
 
@@ -83,7 +83,6 @@ task runKumuluzEE(type: JavaExec) {
     args buildKumuluzEE.archivePath.path
 }
 
-
 /**
  * DOCKER TASKS
  */
@@ -94,9 +93,9 @@ import com.bmuschko.gradle.docker.tasks.image.*
 docker {
     registryCredentials {
         url = 'https://hub.docker.com/'
-        email = DOCKER_HUB_EMAIL
-        password = DOCKER_HUB_PASSWORD
-        username = DOCKER_HUB_USER
+        username = dockerHubUser
+        email = dockerHubEmail
+        password = dockerHubPassword
     }
 }
 
@@ -173,7 +172,6 @@ task imagePushToDockerHub(type: DockerPushImage){
 
 task containerCreate(type: DockerCreateContainer) {
     group 'docker'
-    dependsOn imageBuild
     targetImageId {
         dockerImageTag
     }
