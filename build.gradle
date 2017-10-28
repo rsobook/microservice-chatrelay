@@ -117,8 +117,8 @@ task dockerfileCreate(type: Dockerfile) {
 
 task dockerfileCopyScript(type: Copy){
     group 'docker'
-    from "/build-dependency/run.sh"
-    from "/build-dependency/config.yaml"
+    from project.projectDir.path + "/build-dependency/run.sh"
+    from project.projectDir.path + "/build-dependency/config.yaml"
     into dockerfileCreate.destFile.parentFile
 }
 
@@ -165,13 +165,13 @@ task imageBuild(type: DockerBuildImage) {
 
 task imagePushToDockerHub(type: DockerPushImage){
     group 'docker'
-    dependsOn imageBuild
     imageName = dockerImageTag
     tag = version
 }
 
 task containerCreate(type: DockerCreateContainer) {
     group 'docker'
+    dependsOn imageBuild
     targetImageId {
         dockerImageTag
     }
