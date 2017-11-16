@@ -104,13 +104,14 @@ task dockerfileCreate(type: Dockerfile) {
     destFile = project.file('build/kumuluzee/Dockerfile')
     from 'openjdk:8-jdk'
     maintainer 'Jan Gasperlin "jg1724@student.uni-lj.si"'
-    environmentVariable("PORT", port)
+
     environmentVariable("JAR", buildKumuluzEE.archiveName)
+    environmentVariable("PORT", port)
+
     exposePort {
         port
     }
     addFile(buildKumuluzEE.archiveName, "/usr/local/bin/kumuluzee/")
-    //addFile("config.yaml", "/usr/local/bin/kumuluzee")
     addFile("run.sh", "/usr/local/bin/kumuluzee")
     defaultCommand('/bin/bash','/usr/local/bin/kumuluzee/run.sh', 'start')
 }
