@@ -2,29 +2,58 @@ package si.fri.rsobook.websocket;
 
 import si.fri.rsobook.coders.MesageDecoder;
 import si.fri.rsobook.coders.MesageEncoder;
+import si.fri.rsobook.config.ChatRelayApiConfigProperties;
 import si.fri.rsobook.model.Message;
+import si.fri.rsobook.model.RoomStats;
 
+import javax.inject.Inject;
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@ServerEndpoint(value = "/room/{room}", decoders = MesageDecoder.class, encoders = MesageEncoder.class)
+
+@ServerEndpoint(value = "/ws/v1/ChatRelay/{room}", decoders = MesageDecoder.class, encoders = MesageEncoder.class)
 public class ChatRoomRelayEndpoint {
 
+    @Inject
+    private ChatRelayApiConfigProperties chatRelayApiConfigProperties;
+
     private final Logger log = Logger.getLogger(getClass().getName());
+
+    private final HashMap<String, RoomStats> roomUserHashSet = new HashMap<>();
 
     @OnOpen
     public void open(final Session session, @PathParam("room") final String room) {
         log.info("session openend and bound to room: " + room);
-        session.getUserProperties().put("room", room);
 
-        try {
-            session.getBasicRemote().sendObject(new Message("Server", "You logged in chat room: " + room));
-        } catch (IOException | EncodeException e) {
-            e.printStackTrace();
+        RoomStats roomStats = roomUserHashSet.get(room);
+        if(roomStats == null){
+            roomStats = new RoomStats(room);
+            roomUserHashSet.put(room, roomStats);
+        }
+
+        if(roomStats.userCount >= chatRelayApiConfigProperties.getMaxChatUsers()){
+            roomStats.userCount++;
+
+            session.getUserProperties().put("room", room);
+            try {
+                session.getBasicRemote().sendObject(new Message("Server", "You logged in chat room: " + room));
+            } catch (IOException | EncodeException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                session.getBasicRemote().sendObject(new Message("Server", "The room is full."));
+                session.close();
+            } catch (EncodeException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

@@ -34,16 +34,28 @@ repositories {
     maven {
         url 'https://box.kisek.si/nexus/repository/maven-releases'
     }
+    maven {
+        url 'https://oss.sonatype.org/content/repositories/snapshots'
+    }
 }
 
 dependencies {
 
-    compile group: 'si.fri.rsobook', name: 'rsobook-core', version: '1.0'
+    compile group: 'si.fri.rsobook', name: 'lib.core', version: '1.2.2'
 
     compile group: "com.kumuluz.ee", name: 'kumuluzee-core', version: '2.4.1'
+    compile group: "com.kumuluz.ee", name: 'kumuluzee-cdi-weld', version: '2.5.0-SNAPSHOT'
     compile group: "com.kumuluz.ee", name: 'kumuluzee-servlet-jetty', version: '2.4.1'
     compile group: "com.kumuluz.ee", name: 'kumuluzee-jax-rs-jersey', version: '2.4.1'
     compile group: "com.kumuluz.ee", name: 'kumuluzee-websocket-jetty', version: '2.4.1'
+
+    compile group: "com.kumuluz.ee.config", name: "kumuluzee-config-etcd", version: '1.1.0-SNAPSHOT'
+    compile group: 'com.kumuluz.ee.discovery', name: 'kumuluzee-discovery-etcd', version:'1.0.0-SNAPSHOT'
+
+    compile group: 'com.kumuluz.ee.health', name: 'kumuluzee-health', version:'1.0.0-SNAPSHOT'
+
+    compile group: 'com.kumuluz.ee.metrics', name: 'kumuluzee-metrics-core', version:'1.0.0-SNAPSHOT'
+    compile group: 'com.kumuluz.ee.metrics', name: 'kumuluzee-metrics-logs', version:'1.0.0-SNAPSHOT'
 
     compile group: 'org.postgresql', name: 'postgresql', version: '42.1.1'
 
@@ -105,15 +117,17 @@ task dockerfileCreate(type: Dockerfile) {
     from 'openjdk:8-jdk'
     maintainer 'Jan Gasperlin "jg1724@student.uni-lj.si"'
 
-    environmentVariable("JAR", buildKumuluzEE.archiveName)
     environmentVariable("PORT", port)
+
+    environmentVariable("KUMULUZEE_CONFIG_ETCD_HOSTS", 'http://ms.etcd:2379')
+    environmentVariable("KUMULUZEE_DISCOVERY_ETCD_HOSTS", 'http://ms.etcd:2379')
 
     exposePort {
         port
     }
+
     addFile(buildKumuluzEE.archiveName, "/usr/local/bin/kumuluzee/")
-    addFile("run.sh", "/usr/local/bin/kumuluzee")
-    defaultCommand('/bin/bash','/usr/local/bin/kumuluzee/run.sh', 'start')
+    defaultCommand("java", "-jar", "/usr/local/bin/kumuluzee/" + buildKumuluzEE.archiveName)
 }
 
 task dockerfileCopyScript(type: Copy){

@@ -1,0 +1,48 @@
+kumuluzee:
+  name: ms.chatrelay
+  env:
+    name: dev
+  version: 1.0.0
+  server:
+      base-url:
+      http:
+        port:
+  config:
+    etcd:
+      hosts: http://localhost:52379
+  discovery:
+    etcd:
+      hosts: http://localhost:52379
+    ttl: 20
+    ping-interval: 15
+  cors-filter:
+    servlet:
+      allow-origin: "*"
+  health:
+    servlet:
+      mapping: /health
+      enabled: true
+    logs:
+      enabled: false
+      level: INFO
+      period-s: 30
+    checks:
+      disk-space-health-check:
+        threshold: 100000000
+  metrics:
+    generic-registry-name: default
+    jvm:
+      enabled: true
+      registry-name: jvm
+    servlet:
+      enabled: true
+      mapping: /metrics
+    logs:
+      enabled: false
+      period-s: 30
+      level: INFO
+    web-instrumentation:
+      - name: chatrelay-endpoint
+        url-pattern: /api/v1/ChatRelay/*
+properties:
+  max-chat-users: 10
