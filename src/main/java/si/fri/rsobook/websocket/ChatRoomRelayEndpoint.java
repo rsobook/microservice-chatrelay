@@ -59,6 +59,16 @@ public class ChatRoomRelayEndpoint {
 
     @OnClose
     public void close(final Session session) {
+        String room = (String) session.getUserProperties().get("room");
+
+        RoomStats roomStats = roomUserHashSet.get(room);
+        if(roomStats != null){
+            roomStats.userCount--;
+            if(roomStats.userCount == 0){
+                roomUserHashSet.remove(roomStats);
+            }
+        }
+
         log.info("session closed");
     }
 
