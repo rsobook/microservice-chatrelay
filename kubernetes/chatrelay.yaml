@@ -15,6 +15,10 @@ spec:
           env:
             - name: PORT
               value: '80'
+            - name: KUMULUZEE_DISCOVERY_ETCD_HOSTS
+              value: http://ms-etcd:2379
+            - name: KUMULUZEE_CONFIG_ETCD_HOSTS
+              value: http://ms-etcd:2379
           ports:
           - containerPort: 5432
             protocol: TCP
