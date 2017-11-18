@@ -1,8 +1,8 @@
 kumuluzee:
-  name: ms.chatrelay
+  name: ms-chatrelay
   env:
     name: dev
-  version: 1.0.0
+  version: 2.0.0
   server:
       base-url:
       http:
@@ -43,6 +43,6 @@ kumuluzee:
       level: INFO
     web-instrumentation:
       - name: chatrelay-endpoint
-        url-pattern: /api/v1/ChatRelay/*
+        url-pattern: /ws/v1/ChatRelay/*
 properties:
   max-chat-users: 10
