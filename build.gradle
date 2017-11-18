@@ -119,8 +119,8 @@ task dockerfileCreate(type: Dockerfile) {
 
     environmentVariable("PORT", port)
 
-    environmentVariable("KUMULUZEE_CONFIG_ETCD_HOSTS", 'http://ms.etcd:2379')
-    environmentVariable("KUMULUZEE_DISCOVERY_ETCD_HOSTS", 'http://ms.etcd:2379')
+    environmentVariable("KUMULUZEE_CONFIG_ETCD_HOSTS", 'http://ms-etcd:2379')
+    environmentVariable("KUMULUZEE_DISCOVERY_ETCD_HOSTS", 'http://ms-etcd:2379')
 
     exposePort {
         port
