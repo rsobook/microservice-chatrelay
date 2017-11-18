@@ -1,0 +1,20 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: ms-chatrelay
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ms-chatrelay
+    spec:
+      containers:
+        - image: rsobook/ms-chatrelay:1.0.0
+          name: ms-chatrelay
+          env:
+            - name: PORT
+              value: '80'
+          ports:
+          - containerPort: 5432
+            protocol: TCP
