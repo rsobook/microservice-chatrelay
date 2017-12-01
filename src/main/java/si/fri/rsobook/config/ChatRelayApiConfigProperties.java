@@ -19,4 +19,5 @@ public class ChatRelayApiConfigProperties {
     public void setMaxChatUsers(Integer maxChatUsers) {
         this.maxChatUsers = maxChatUsers;
     }
+
 }

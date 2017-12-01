@@ -3,7 +3,8 @@ package si.fri.rsobook.health;
 import org.eclipse.microprofile.health.Health;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
-import si.fri.rsobook.metrics.ChatRelayMetrics;
+import org.eclipse.microprofile.metrics.Counter;
+import org.eclipse.microprofile.metrics.annotation.Metric;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -13,12 +14,13 @@ import javax.inject.Inject;
 public class MetricsHealthCheck  implements HealthCheck {
 
     @Inject
-    private ChatRelayMetrics chatRelayMetrics;
+    @Metric(name = "si.fri.rsobook.websocket.ChatRoomRelayEndpoint.users_logedin", absolute = true)
+    private Counter usersLoggedIn;
 
     @Override
     public HealthCheckResponse call() {
 
-        if(!chatRelayMetrics.isHealthy()){
+        if(usersLoggedIn.getCount() < 5){
             return HealthCheckResponse.named(MetricsHealthCheck.class.getSimpleName()).down().build();
         }
 

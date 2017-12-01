@@ -1,5 +1,9 @@
 package si.fri.rsobook.websocket;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.eclipse.microprofile.metrics.Counter;
+import org.eclipse.microprofile.metrics.annotation.Metric;
 import si.fri.rsobook.coders.MesageDecoder;
 import si.fri.rsobook.coders.MesageEncoder;
 import si.fri.rsobook.config.ChatRelayApiConfigProperties;
@@ -12,23 +16,27 @@ import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
-@ServerEndpoint(value = "/ws/v1/ChatRelay/{room}", decoders = MesageDecoder.class, encoders = MesageEncoder.class)
+@ServerEndpoint(value = "/api/v1/ChatRelay/{room}", decoders = MesageDecoder.class, encoders = MesageEncoder.class)
 public class ChatRoomRelayEndpoint {
+
+    private final Logger log = LogManager.getLogger(ChatRoomRelayEndpoint.class.getName());
+
+    @Inject
+    @Metric(name = "users_logedin")
+    private Counter usersLoggedIn;
 
     @Inject
     private ChatRelayApiConfigProperties chatRelayApiConfigProperties;
-
-    private final Logger log = Logger.getLogger(getClass().getName());
 
     private final HashMap<String, RoomStats> roomUserHashSet = new HashMap<>();
 
     @OnOpen
     public void open(final Session session, @PathParam("room") final String room) {
-        log.info("session openend and bound to room: " + room);
+        log.info(String.format("User with ip %s logged int room: %s ", session.getUserProperties().get("javax.websocket.endpoint.remoteAddress"), room ) );
+
+        usersLoggedIn.inc();
 
         RoomStats roomStats = roomUserHashSet.get(room);
         if(roomStats == null){
@@ -36,7 +44,8 @@ public class ChatRoomRelayEndpoint {
             roomUserHashSet.put(room, roomStats);
         }
 
-        if(roomStats.userCount >= chatRelayApiConfigProperties.getMaxChatUsers()){
+
+        if(chatRelayApiConfigProperties.getMaxChatUsers() >= roomStats.userCount) {
             roomStats.userCount++;
 
             session.getUserProperties().put("room", room);
@@ -49,9 +58,7 @@ public class ChatRoomRelayEndpoint {
             try {
                 session.getBasicRemote().sendObject(new Message("Server", "The room is full."));
                 session.close();
-            } catch (EncodeException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
+            } catch (EncodeException | IOException e) {
                 e.printStackTrace();
             }
         }
@@ -82,7 +89,7 @@ public class ChatRoomRelayEndpoint {
                 }
             }
         } catch (IOException | EncodeException e) {
-            log.log(Level.WARNING, "onMessage failed", e);
+            log.error("onMessage failed", e);
         }
     }
 }
