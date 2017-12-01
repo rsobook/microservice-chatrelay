@@ -13,7 +13,7 @@ spec:
         app: ms-chatrelay
     spec:
       containers:
-        - image: rsobook/ms-chatrelay:2.0.0
+        - image: rsobook/ms-chatrelay:2.0.1
           name: ms-chatrelay
           env:
             - name: PORT
