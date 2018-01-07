@@ -2,8 +2,11 @@ package si.fri.rsobook.config;
 
 import com.kumuluz.ee.configuration.cdi.ConfigBundle;
 import com.kumuluz.ee.configuration.cdi.ConfigValue;
+import com.kumuluz.ee.discovery.annotations.DiscoverService;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import java.net.URL;
 
 @ApplicationScoped
 @ConfigBundle("properties")

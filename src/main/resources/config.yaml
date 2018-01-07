@@ -4,15 +4,15 @@ kumuluzee:
     name: dev
   version: 2.0.0
   server:
-      base-url:
-      http:
-        port:
+    base-url: http://localhost:8086
+    http:
+      port: 8086
   config:
     etcd:
-      hosts: http://localhost:52379
+      hosts: http://localhost:2379
   discovery:
     etcd:
-      hosts: http://localhost:52379
+      hosts: http://localhost:2379
     ttl: 20
     ping-interval: 15
   cors-filter:
